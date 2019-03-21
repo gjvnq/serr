@@ -1,4 +1,4 @@
-package supererr
+package serr
 
 import (
 	"strings"
@@ -13,7 +13,7 @@ func Test_newWrap_1(t *testing.T) {
 	assert.NotEqual(t, 0, w.line)
 	assert.Equal(t, w.line, w.Line())
 	assert.Equal(t, w.function, w.Function())
-	assert.True(t, strings.HasPrefix(w.String(), "github.com/gjvnq/SuperErr"))
+	assert.True(t, strings.HasPrefix(w.String(), "github.com/gjvnq/serr"))
 }
 
 func Test_newWrap_2(t *testing.T) {
@@ -21,5 +21,5 @@ func Test_newWrap_2(t *testing.T) {
 	assert.Equal(t, 0, w.line)
 	assert.Equal(t, w.line, w.Line())
 	assert.Equal(t, w.function, w.Function())
-	assert.Equal(t, "[unavailable]", w.String())
+	assert.Equal(t, "[unknown place]", w.String())
 }

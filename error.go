@@ -1,59 +1,70 @@
-package supererr
+package serr
 
-type Error interface {
-	// Provided for compatibility with built-in error type
-	Error() string
-	// Custom error code in the format
-	ErrCode() ErrCode
-	// Returns the place where the error occurred
-	Origin() WrapPlace
-	// List of places where the error passed by
-	WrapedBy() []WrapPlace
-	// Appends the place that called this function to the WrapedBy()
-	Wrap()
-	// Multi-line string showing the full execution stack
-	FullStack() string
-	// Error specific information
-	Data() interface{}
+import "fmt"
+
+type ErrorFormatFunc func([]error) string
+
+type SuperError struct {
+	Message     string
+	Code        ErrCode
+	Origin      WrapPlace
+	PassedBy    []WrapPlace
+	Stack       string
+	Errors      []error
+	ErrorFormat ErrorFormatFunc
+	// Application specific data or context for the error
+	Data interface{}
 }
 
-type superErr struct {
-	message  string
-	code     ErrCode
-	origin   WrapPlace
-	passedBy []WrapPlace
-	stack    string
-	data     interface{}
-}
-
-func New(code ErrCode, msg string) *Error {
+func New(code ErrCode, msg string) *SuperError {
 	return nil
 }
 
-func NewWithData(code ErrCode, msg string, data interface{}) *Error {
+func NewWithData(code ErrCode, msg string, data interface{}) *SuperError {
 	return nil
 }
 
-func (this *superErr) Error() string {
-	return this.message
+func (this *SuperError) Error() string {
+	ans := this.Origin.String()
+	if ans != "" {
+		ans += " "
+	}
+	ans := this.Code.String()
+	if ans != "" {
+		ans += " "
+	}
+	ans += this.Message
+
+	// Let the user have their special formatter functions
+	if this.ErrorFormat != nil {
+		ans += this.ErrorFormat(this.Errors)
+		return ans
+	}
+
+	// Default formatter
+	for i, sub := range this.Errors {
+		ans += fmt.Sprintf("\n%d. %s", i, sub.Error())
+	}
+	return ans
 }
 
-func (this *superErr) ErrCode() ErrCode {
-	return this.code
+// Returns the amount of sub errors
+func (this *SuperError) Len() int {
+	return len(this.Errors)
 }
 
-func (this *superErr) Origin() WrapPlace {
-	return this.origin
+// Appends sub errors.
+func (this *SuperError) Append(errs ...error) {
+	if this.Errors == nil {
+		this.Errors = make([]error, 0)
+	}
+	this.Errors = append(this.Errors, errs...)
 }
 
-func (this *superErr) PassedBy() []WrapPlace {
-	return this.passedBy
-}
-
-func (this *superErr) FullStack() string {
-	return this.stack
-}
-
-func (this *superErr) Data() interface{} {
-	return this.data
+// Returns nil if and only if there are no sub errors. Otherwise returns itself.
+func (this *SuperError) ErrorOrNil() *SuperError {
+	if this.Len() == 0 {
+		return nil
+	}
+	return this
 }

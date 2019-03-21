@@ -1,4 +1,4 @@
-package supererr
+package serr
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ type WrapPlace struct {
 
 func (this WrapPlace) String() string {
 	if !this.ok {
-		return fmt.Sprintf("[unavailable]")
+		return fmt.Sprintf("[unknown place]")
 	}
 	if this.function == "" {
 		return fmt.Sprintf("%s:%d", this.file, this.line)

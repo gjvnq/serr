@@ -1,4 +1,4 @@
-package supererr
+package serr
 
 import (
 	"testing"

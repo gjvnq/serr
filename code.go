@@ -1,4 +1,4 @@
-package supererr
+package serr
 
 type ErrCode struct {
 	codes []string
@@ -27,4 +27,8 @@ func SameErrCode(code1, code2 *ErrCode) bool {
 
 func (this *ErrCode) Equal(other *ErrCode) bool {
 	return SameErrCode(this, other)
+}
+
+func (this *ErrCode) String() string {
+	return this.codes[0]
 }
