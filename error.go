@@ -6,7 +6,7 @@ type ErrorFormatFunc func([]error) string
 
 type SuperError struct {
 	Message     string
-	Code        ErrCode
+	Code        *ErrCode
 	Origin      WrapPlace
 	PassedBy    []WrapPlace
 	Stack       string
@@ -16,12 +16,27 @@ type SuperError struct {
 	Data interface{}
 }
 
-func New(code ErrCode, msg string) *SuperError {
-	return nil
+func New(code *ErrCode, msg string) *SuperError {
+	ans := new(SuperError)
+	ans.Code = code
+	ans.Message = msg
+	ans.Origin = newWrap(1)
+	ans.Stack = fullStack()
+	return ans
 }
 
-func NewWithData(code ErrCode, msg string, data interface{}) *SuperError {
-	return nil
+func NewWithData(code *ErrCode, msg string, data interface{}) *SuperError {
+	ans := new(SuperError)
+	ans.Code = code
+	ans.Message = msg
+	ans.Origin = newWrap(1)
+	ans.Stack = fullStack()
+	ans.Data = data
+	return ans
+}
+
+func (this *SuperError) String() string {
+	return this.Error()
 }
 
 func (this *SuperError) Error() string {
@@ -29,7 +44,7 @@ func (this *SuperError) Error() string {
 	if ans != "" {
 		ans += " "
 	}
-	ans := this.Code.String()
+	ans = this.Code.String()
 	if ans != "" {
 		ans += " "
 	}
